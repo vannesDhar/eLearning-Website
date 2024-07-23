@@ -1,0 +1,217 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<style>
+  .profile-picture {
+    max-width: 100px; /* Set maximum width */
+    max-height: 100px; /* Set maximum height */
+    border-radius: 50%;
+  }
+</style>
+
+<div class="container">
+  <div class="row justify-content-center bg-secondary p-4 rounded">
+    <div class="col-md-6">
+      
+      <h3 class="text-center">Your Profile</h3>
+      <p class="text-center">{{ user.first_name }} {{ user.last_name }}</p>
+      <div class="text-center">
+        {% if user.profile.picture %}
+          <img src="{{ user.profile.picture.url }}" alt="Profile Picture" class="profile-picture">
+        {% else %}
+          <p>No profile picture available.</p>
+        {% endif %}
+      </div>
+      {% if user.profile.bio %}
+        <div style="max-width: 400px; overflow: hidden; margin: auto;" >
+          <p class="text-center">{{ user.profile.bio }}</p>
+        </div>
+       
+      {% else %}
+        <p class="text-center">No bio yet.</p>
+      {% endif %}
+
+      <div class="text-center">
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Edit Profile</a>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+{% if user.isTeacher %}
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Find User</h4>
+      <form method="GET" action="{% url 'search' %}">
+        {{ form.as_p }}
+        <input type="text" name="query" class="form-control mb-2" placeholder="Enter your search query">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <h3>Hello, Teacher {{ user.username }}!</h3>
+      <h2>Welcome to Our eLearning Platform</h2>
+      <form action="inbox/">
+        <button type="submit" class="btn btn-primary mt-3">Inbox</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mt-3 mb-4">
+    <div class="col-md-6" style="max-height: 300px; overflow-y: auto;">
+      <h2>Your Courses</h2>
+      <a href="{% url 'create_course' %}" class="btn btn-success mb-3">Create Course</a>
+      <ul class="list-group">
+        {% for course in teacher_courses %}
+        <li class="list-group-item">
+          <h6>{{ course.name }}</h6>
+          <p>{{ course.description }}</p> 
+          <p>Level: {{ course.level }}</p>
+          <div class="container">
+            <div class="row justify-content-start">
+              <div class="col-2">
+                <form method="GET" action="{% url 'view_course' course.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-sm">View</button>
+                </form>
+              </div>
+              <div class="col-2 mb-2">
+                <form method="POST" action="{% url 'delete_course' course.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+              </form>
+              </div>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card">
+        <div class="text-center"><h4>General Chat</h4></div>
+        <div class="card-header">Chat</div>
+        <div class="card-body" id="chat-messages" style="height: 300px; overflow-y: auto;"></div>
+        <div class="card-footer">
+          <input type="text" class="form-control" id="chat-input" placeholder="Type your message...">
+          <button class="btn btn-primary" id="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if user.isStudent %}
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Hello, Student {{ user.username }}!</h3>
+      <h2>Welcome to Our eLearning Platform</h2>
+      <p>This is the homepage of our eLearning application. You can navigate to other sections using the links in the navigation menu.</p>
+      <form action="inbox/">
+        <button type="submit" class="btn btn-primary mt-3">Inbox</button>
+      </form>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="card">
+        <div class="text-center"><h4>General Chat</h4></div>
+        <div class="card-header">Chat</div>
+        <div class="card-body" id="chat-messages" style="height: 300px; overflow-y: auto;"></div>
+        <div class="card-footer">
+          <input type="text" class="form-control" id="chat-input" placeholder="Type your message...">
+          <button class="btn btn-primary" id="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <h2>Available Courses</h2>
+      <ul style="max-height: 300px; overflow-y: auto;">
+        {% for course in student_courses %}
+        <li>
+          <h6>{{ course.name }} </h6>
+          <p style="margin-bottom: 0;">Teacher: {{ course.teacher_username }}</p>
+          <p style="margin-bottom: 0;">{{ course.description }}</p>
+          <p>Level: {{ course.level }}</p> 
+          <form method="post" action="{% url 'enroll' course.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Enroll</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <h2>Enrolled Courses</h2>
+      <ul style="max-height: 300px; overflow-y: auto;">
+        {% for course in enrolled_courses %}
+        <li>
+          <h6>{{ course.name }} </h6>
+          <p style="margin-bottom: 0;">Teacher: {{ course.teacher_username }}</p>
+          <p style="margin-bottom: 0;">{{ course.description }}</p>
+          <p>Level: {{ course.level }}</p> 
+          <form method="GET" action="{% url 'view_course' course.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">View</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- JavaScript code for WebSocket connection -->
+<script>
+  var chatMessages = document.getElementById('chat-messages');
+  var chatInput = document.getElementById('chat-input');
+  var sendButton = document.getElementById('send-button');
+  var ws = new WebSocket('ws://localhost:8000/ws/eLearningProj/home/');
+
+  ws.onopen = function(event) {
+      console.log('WebSocket connection established.');
+  };
+
+  ws.onmessage = function(event) {
+    // Handle incoming messages and display them in the chat area
+    var data = JSON.parse(event.data);
+    var username = data.username;
+    var message = data.message;
+    chatMessages.innerHTML += '<div><strong>' + username + ':</strong> ' + message + '</div>';
+  };
+
+  sendButton.addEventListener('click', function() {
+      // Send a message when the send button is clicked
+      var message = chatInput.value;
+      if (message.trim() !== '') {
+          ws.send(JSON.stringify({ message: message }));
+          chatInput.value = '';
+      }
+  });
+
+  // Handle WebSocket connection errors
+  ws.onerror = function(event) {
+      console.error('WebSocket error:', event);
+  };
+
+  ws.onclose = function(event) {
+      console.log('WebSocket connection closed. Reconnecting...');
+      setTimeout(connectWebSocket, 5000);
+  };
+</script>
+{% endif %}
+{% endblock %}
+

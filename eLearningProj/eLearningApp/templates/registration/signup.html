@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<style>
+    /* Custom styles */
+    .login-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin-top: 50px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Adjust label width to align input boxes */
+    .login-container label {
+        width: 100px; /* Adjust as needed */
+        display: inline-block;
+        margin-bottom: 10px; /* Add some spacing between label and input */
+    }
+
+    /* Adjust input field width */
+    .login-container input[type="text"],
+    .login-container input[type="password"],
+    .login-container input[type="email"] {
+        width: calc(100% - 110px); /* Adjust based on label width */
+        margin-bottom: 10px; /* Add some spacing between input and next label */
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 login-container">
+            <h2 class="text-center mb-4">Register</h2>
+            <form method="post">
+                {{form.as_p}}
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

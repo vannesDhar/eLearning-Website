@@ -1,0 +1,16 @@
+<!-- profile.html -->
+{% extends "base.html" %}
+{% block title %}Create Course{% endblock %}
+{% block content %}
+<a href="../home" class="btn btn-secondary" style="margin: 3px;">Back</a>
+<h2>Create Course</h2>
+
+<form method="post" class="my-4">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+{% endblock %}

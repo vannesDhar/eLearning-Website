@@ -1,0 +1,93 @@
+<!-- profile.html -->
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<a href="../home" class="btn btn-secondary" style="margin: 3px;">Back</a>
+
+
+{% if user.isTeacher %}
+    <h2>Uploaded Materials</h2>
+    <ul class="list-group mb-3">
+        {% for material in materials %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ material.file }}">{{ material.title }}</a>
+                <form method="POST" action="{% url 'delete_material' material.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No materials uploaded</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Students Enrolled</h2>
+    <ul class="list-group mb-3">
+        {% for enr in enroll %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{{ enr.student }}</span>
+                    <span>{{ enr.student.email }}</span>
+                </div>
+                <form method="POST" action="{% url 'remove_student' enr.course.id enr.student.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No students enrolled</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Upload Material</h2>
+    <form method="POST" action="{% url 'create_material' course_id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_title" class="form-label">Title:</label>
+            <input type="text" class="form-control" id="id_title" name="title">
+        </div>
+        <div class="mb-3">
+            <label for="id_description" class="form-label">Description:</label>
+            <input type="text" class="form-control" id="id_description" name="description">
+        </div>
+        <div class="mb-3">
+            <label for="id_file" class="form-label">File:</label>
+            <input type="file" class="form-control" id="id_file" name="file">
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+    <h2>Feedbacks</h2>
+    {% for feedback in feedbacks %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Rating: {{ feedback.rating }}</h5>
+                <p class="card-text">Comments: {{ feedback.comments }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>No feedbacks available</p>
+    {% endfor %}
+{% endif %}
+
+{% if user.isStudent %}
+    <h2>Available Materials</h2>
+    <ul class="list-group mb-3">
+        {% for mat in materials %}
+            <li class="list-group-item">
+                <a href="{{ mat.file }}">{{ mat.title }}</a>
+                <p>{{ mat.description }}</p>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No materials available</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Leave Feedback</h2>
+    <form method="post" action="{% url 'leave_feedback' course_id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+{% endif %}
+{% endblock %}

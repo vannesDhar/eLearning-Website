@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+
+<a href="../" class="btn btn-secondary " style="margin: 3px;" >Back</a>
+<h1>Inbox</h1>
+<ul>
+    {% for notification in notifications %}
+        <li>{{ notification.message }} - {{ notification.created_at }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

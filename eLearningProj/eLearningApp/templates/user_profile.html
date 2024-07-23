@@ -1,0 +1,44 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Search Result{% endblock %}
+
+{% block content %}
+<a href="../home" class="btn btn-secondary" style="margin: 3px;">Back</a>
+
+{% if profile %}
+    <div class="container mt-3">
+        <div class="card bg-secondary">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ user.first_name }} {{ user.last_name }}</h3>
+                <div class="">
+                    {% if profile.picture %}
+                        <img src="{{ user.profile.picture.url }}" alt="Profile Picture" style="max-width: 200px; max-height: 200px; border-radius:50%;" class="card-img-top">
+                    {% else %}
+                        <p>No profile picture available.</p>
+                    {% endif %}
+                </div>
+                <p class="card-text mt-3">{{ profile.bio }}</p>
+                {% if user.isTeacher %}
+                    <h5 class="card-title">Teacher for:</h5>
+                    {% for course in produced_courses %}
+                        <p class="card-text">{{ course }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% if user.isStudent %}
+                    <h5 class="card-title">Enrolled in:</h5>
+                    {% for course in enrolled_courses %}
+                        <p class="card-text">{{ course }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% else %}
+
+    <h3>No Profile Available</h3>
+{% endif %}
+
+   
+{% endblock %}
